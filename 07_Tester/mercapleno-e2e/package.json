@@ -1,0 +1,15 @@
+﻿{
+  "name": "mercapleno-e2e",
+  "version": "1.0.0",
+  "description": "Pruebas E2E Cypress - Proyecto Mercapleno",
+  "scripts": {
+    "cy:open": "cypress open",
+    "cy:run": "cypress run",
+    "cy:run:autenticacion": "cypress run --spec \"cypress/e2e/autenticacion/**/*.cy.js\"",
+    "cy:run:admin": "cypress run --spec \"cypress/e2e/admin/**/*.cy.js\"",
+    "cy:run:flujo-admin": "cypress run --spec \"cypress/e2e/admin/flujo-administrador.cy.js\""
+  },
+  "devDependencies": {
+    "cypress": "^15.20.1"
+  }
+}

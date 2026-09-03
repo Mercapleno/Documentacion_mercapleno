@@ -1,0 +1,17 @@
+﻿{
+  "admin": {
+    "email": "admin@ejemplo.com",
+    "password": "Password123!",
+    "id_rol": 1
+  },
+  "empleado": {
+    "email": "empleado@ejemplo.com",
+    "password": "Password123!",
+    "id_rol": 2
+  },
+  "cliente": {
+    "email": "cliente@ejemplo.com",
+    "password": "Password123!",
+    "id_rol": 3
+  }
+}
