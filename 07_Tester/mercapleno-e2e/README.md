@@ -1,68 +1,81 @@
-﻿# Mercapleno E2E - Pruebas Cypress
+# Mercapleno E2E - Pruebas Cypress por Roles
 
-Proyecto unificado de pruebas end-to-end con Cypress para el sistema Mercapleno.
+Suite de pruebas End-to-End (E2E) para Mercapleno estructurada por **Roles y Procesos de Usuario**. Cada flujo recorre de punta a punta el viaje completo que realiza cada tipo de usuario en el sistema.
 
-## Requisitos previos
+---
 
-- Node.js >= 18
-- Docker con los contenedores de Mercapleno corriendo:
-  - Frontend: http://localhost:5173
-  - Backend:  http://localhost:4000
+## 👥 Estructura por Roles
 
-## Instalacion
+```
+cypress/
+├── e2e/
+│   ├── 1-rol-cliente/
+│   │   └── flujo-cliente.cy.js          # Onboarding -> Login directo -> Catálogo -> Carrito -> Ticket -> Acceso denegado
+│   ├── 2-rol-empleado/
+│   │   └── flujo-empleado.cy.js         # Login 2FA -> Dashboard -> Movimientos de Inventario -> Estadísticas -> Restricciones
+│   └── 3-rol-administrador/
+│       └── flujo-administrador.cy.js    # Login 2FA -> Dashboard -> Gestión Productos -> Gestión Usuarios -> Reportes PDF
+├── fixtures/
+│   ├── usuarios.json                    # Datos maestros de credenciales por rol (cliente, empleado, admin)
+│   └── example.json
+└── support/
+    ├── commands.js                      # cy.loginByRoleUI(), cy.visitAsRole()
+    └── e2e.js
+```
+
+---
+
+## 📋 Procesos Cubiertos por Cada Rol
+
+### 1. Rol Cliente (`1-rol-cliente/flujo-cliente.cy.js`)
+
+- **Proceso 1:** Registro de usuario con validación de tipo de documento y verificación de correo.
+- **Proceso 2:** Inicio de sesión directo (sin requerir 2FA) y redirección inmediata al catálogo (`/catalogo`).
+- **Proceso 3:** Navegación por el catálogo, carrito de compras (`/cart`) y generación de comprobante (`/ticket`).
+- **Proceso 4:** Verificación de seguridad: denegación de acceso (`403 Unauthorized`) al intentar ingresar a paneles administrativos (`/usuarioC`, `/admin/users`, `/products/admin`).
+
+### 2. Rol Empleado (`2-rol-empleado/flujo-empleado.cy.js`)
+
+- **Proceso 1:** Inicio de sesión con autenticación de dos factores (2FA obligatorio) hacia el panel de operaciones (`/usuarioC`).
+- **Proceso 2:** Gestión operativa de movimientos de inventario (`/products/employee`).
+- **Proceso 3:** Consulta de estadísticas y reportes de la tienda (`/estadisticas`).
+- **Proceso 4:** Control de acceso: bloqueo y redirección de seguridad al intentar ingresar a la administración de usuarios (`/admin/users`) o configuración exclusiva de administrador (`/products/admin`).
+
+### 3. Rol Administrador (`3-rol-administrador/flujo-administrador.cy.js`)
+
+- **Proceso 1:** Inicio de sesión seguro con 2FA hacia el Dashboard (`/usuarioC`).
+- **Proceso 2:** Administración integral de productos (`/products/admin`): creación con categoría/proveedor, edición y eliminación con confirmación.
+- **Proceso 3:** Gestión de usuarios (`/admin/users`): listado, búsqueda por texto, creación, modificación de perfil y eliminación.
+- **Proceso 4:** Inteligencia de negocio y reportes (`/estadisticas`): actualización de métricas, filtrado por rango de fechas y exportación/descarga de PDF.
+
+---
+
+## 🚀 Instalación y Ejecución
+
+### 1. Instalar dependencias
 
 ```bash
 npm install
 ```
 
-## Ejecutar pruebas
+### 2. Ejecución interactiva (Cypress Test Runner UI)
 
 ```bash
-# Abrir Cypress UI (modo interactivo)
 npm run cy:open
+```
 
-# Correr todas las pruebas en modo headless
-npm run cy:run
+### 3. Ejecución por Roles (Modo Headless)
 
-# Solo pruebas de autenticacion
-npm run cy:run:autenticacion
+```bash
+# Ejecutar solo el proceso del Cliente
+npm run cy:run:cliente
 
-# Solo pruebas del modulo admin (mock)
+# Ejecutar solo el proceso del Empleado
+npm run cy:run:empleado
+
+# Ejecutar solo el proceso del Administrador
 npm run cy:run:admin
 
-# Flujo E2E completo del Administrador (requiere backend real)
-npm run cy:run:flujo-admin
+# Ejecutar todos los roles en secuencia
+npm run cy:run:roles
 ```
-
-## Estructura
-
-```
-cypress/
-├── e2e/
-│   ├── autenticacion/
-│   │   ├── login.cy.js               # 10 casos: login, 2FA, roles, rutas protegidas
-│   │   ├── registro.cy.js            # 7 casos: validaciones, errores backend, exito
-│   │   ├── verificar-correo.cy.js    # 5 casos: verificacion de email
-│   │   └── recuperar-contrasena.cy.js
-│   └── admin/
-│       ├── flujo-administrador.cy.js # E2E real: login 2FA → productos → reportes
-│       └── gestion-usuarios/
-│           ├── 1-listar-usuarios.cy.js   # 6 casos: listado, filtros
-│           ├── 2-crear-usuario.cy.js     # 5 casos: validaciones, exito
-│           ├── 3-editar-usuario.cy.js    # 4 casos: precarga, validacion, edicion
-│           └── 4-eliminar-usuario.cy.js  # 3 casos: cancelar, error, exito
-├── fixtures/
-│   ├── usuarios.json   # Datos de usuarios de prueba por rol
-│   └── example.json
-└── support/
-    ├── commands.js     # Comandos: cy.loginAdmin(), cy.setAdminSession()
-    └── e2e.js
-```
-
-## Tipos de prueba
-
-| Spec | Tipo | Requiere backend real |
-|---|---|---|
-| `autenticacion/*.cy.js` | Mock (cy.intercept) | No |
-| `admin/gestion-usuarios/*.cy.js` | Mock (cy.intercept) | No |
-| `admin/flujo-administrador.cy.js` | E2E real | **Si** |

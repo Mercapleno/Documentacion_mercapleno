@@ -1,8 +1,6 @@
-﻿const { defineConfig } = require("cypress");
+const { defineConfig } = require("cypress");
 
 module.exports = defineConfig({
-  allowCypressEnv: false,
-
   e2e: {
     // URL base del frontend Mercapleno (Docker: http://localhost:5173)
     baseUrl: 'http://localhost:5173',
